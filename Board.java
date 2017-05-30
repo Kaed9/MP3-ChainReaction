@@ -34,13 +34,15 @@ public class Board extends JPanel implements ActionListener{
 			}
 		}
 		
-		setBackground(Color.BLACK);
+		//setBackground(Color.BLACK);
+		setOpaque(false);
 		setLayout(new GridLayout(tile.length, tile[0].length));
 		for(int i = 0; i < tile.length; i++){
 			for(int j = 0 ; j < tile[i].length; j++){
 				tile[i][j] = new Tile();
-				tile[i][j].setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.CYAN));
-				tile[i][j].setBackground(Color.BLACK);
+				tile[i][j].setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.WHITE));
+				//tile[i][j].setBackground(Color.BLACK);
+				tile[i][j].setOpaque(false);
 				tile[i][j].setIcon(ballIcon[tile[i][j].player][tile[i][j].ctr]);
 				add(tile[i][j]);
 			}
@@ -317,7 +319,7 @@ public class Board extends JPanel implements ActionListener{
 	
 	public void declareWinner(int winner){
 		handler.gamePlaying = false;
-		int reply = JOptionPane.showConfirmDialog(null, "Winner is player " + winner + "\nWould you like to play again?", "Found Winner!", JOptionPane.YES_NO_OPTION);
+		int reply = JOptionPane.showConfirmDialog(GameHandler.gameMenu.gameHandler, "Winner is player " + winner + "\nWould you like to play again?", "Found Winner!", JOptionPane.YES_NO_OPTION);
 		if(reply == JOptionPane.YES_OPTION){
 			handler.startGame(handler.currentlyPlayed, (handler.currentlyPlayed == GameHandler.PLAYER_VS_AI?handler.ai.player:0), false, "");
 			resetGame();

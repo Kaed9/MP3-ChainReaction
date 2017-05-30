@@ -47,10 +47,10 @@ public class Tile extends JPanel{// implements ActionListener{
 			aT.rotate(Math.toRadians(angle), x, y);
 			g2.setTransform(aT);
 			g2.setClip(oldshape);
-			//if(interval++ == 4){
+			if(interval++ == 4 || Board.ballMoveCtr > 0){
 				angle++;
 				interval = 0;
-			//}
+			}
 			angle = (angle>=360?0:angle);
 			super.paintComponent(g);
 		}

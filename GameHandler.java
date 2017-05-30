@@ -22,10 +22,12 @@ public class GameHandler extends JFrame implements MouseListener, ActionListener
 	public GameHandler() {
 		
 		super("Chain Reaction");
-		setSize(500,500);
+		setSize(600,500);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		// printMenu();
-		setLocation(100, 100);
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
+		//setLocation(100, 100);
 		starter();
 		//startGame(PLAYER_VS_AI);
 		timer.start();
@@ -94,7 +96,8 @@ public class GameHandler extends JFrame implements MouseListener, ActionListener
 		getContentPane().removeAll();
 		repaint();
 		revalidate();
-		setLayout(new BorderLayout());
+		//setLayout(new BorderLayout());
+		setLayout(null);
 		mainBoard = null;
 		mainBoard = new Board(this);
 		if(isLoad) {
@@ -119,52 +122,45 @@ public class GameHandler extends JFrame implements MouseListener, ActionListener
 			ai.enabled = true;
 		}
 		currentlyPlayed = gameMode;
-		JButton save = new JButton("Save Game");
+		JLabel gamemode = new JLabel((gameMode==PLAYER_VS_AI?"Player VS. AI":"Player VS. Player"), SwingConstants.CENTER);
+		JPanel title = new JPanel();
+		title.setOpaque(false);
+		//title.setBackground(Color.BLACK);
+		title.add(gamemode);
+		gamemode.setForeground(Color.CYAN);
+		gamemode.setBackground(Color.BLACK);
+		StatusPanel statusPanel = new StatusPanel(this, gameMode, AIplayer);
 		this.add(mainBoard, BorderLayout.CENTER);
-		this.add(save, BorderLayout.NORTH);
-		save.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd");
-				// Date date = new Date();
-				// String fileName = "Saves/" + dateFormat.format(date) + ".txt";
-				String fileName = JOptionPane.showInputDialog("Enter save file name");
-				fileName = "Saves/" + fileName + ".txt";
-				System.out.println(fileName);
-				
-				File file = new File(fileName);
-				try {					
-					BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-					bufferedWriter.write(gameMode + "");
-					bufferedWriter.newLine();
-					bufferedWriter.write(AIplayer + "");
-					bufferedWriter.newLine();
-					String toWrite = mainBoard.saving();
-					// System.out.println(toWrite);
-					bufferedWriter.write(toWrite);
-					bufferedWriter.close();
-				} catch(Exception ex) { }
-			}
-		}
-		);
+		this.add(title, BorderLayout.NORTH);
+		this.add(statusPanel, BorderLayout.EAST);
+		//this.add(save, BorderLayout.NORTH);
+		JLabel background = new JLabel();
+		background.setIcon(new ImageIcon(new ImageIcon("background.png").getImage().getScaledInstance(600, 500, Image.SCALE_DEFAULT)));
+		mainBoard.setBounds(1,25, 474, 474);
+		title.setBounds(0,0,600,25);
+		statusPanel.setBounds(475,25,125,475);
+		background.setBounds(0,0,600,500);
+		this.add(background);
 		repaint();
 		revalidate();
 	}
+	
 	
 	public void actionPerformed(ActionEvent e){
 		if(Board.ballMoveCtr > 0 || !gamePlaying){
 			return;
 		}
 		if(ai.player == player && !ai.findingMove && ai.enabled){
-			// new Thread() {
-				// public void run() {
-					// try {
-					// System.out.println((Runtime.getRuntime().maxMemory()/1024/1024) + " " + (Runtime.getRuntime().totalMemory()/1024/1024) + " " + (Runtime.getRuntime().freeMemory()/1024/1024));
-			ai.findMove(mainBoard);
-					// System.out.println((Runtime.getRuntime().maxMemory()/1024/1024) + " " + (Runtime.getRuntime().totalMemory()/1024/1024) + " " + (Runtime.getRuntime().freeMemory()/1024/1024));
+			new Thread(){
+				public void run(){
+					 //try{
+					//System.out.println((Runtime.getRuntime().maxMemory()/1024/1024) + " " + (Runtime.getRuntime().totalMemory()/1024/1024) + " " + (Runtime.getRuntime().freeMemory()/1024/1024));
+					ai.findMove(mainBoard);
+					//System.out.println((Runtime.getRuntime().maxMemory()/1024/1024) + " " + (Runtime.getRuntime().totalMemory()/1024/1024) + " " + (Runtime.getRuntime().freeMemory()/1024/1024));
 						// Thread.sleep(250);
-					// } catch(InterruptedException iEx) { }
-				// }
-			// }.start();
+					 //}catch(InterruptedException iEx){}
+				}
+			}.start();
 			stackOverflow++;
 			//mainBoard.move(move[1], move[0], false, player);
 			if(player == 1){

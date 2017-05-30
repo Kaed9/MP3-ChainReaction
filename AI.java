@@ -57,6 +57,11 @@ public class AI{
 									bestMove = move;
 								}
 							}
+							if(bestMove[0] == 10000.0){
+								bestMove[1] = xPositionMove;
+								bestMove[2] = yPositionMove;
+								return bestMove;
+							}
 						}else if(!myMove){
 							//System.out.println("possible move found at depth " + depth + "(" + j + ", " + i +")" + myMove);
 							if(bestMove == null || move[0] < bestMove[0]){
@@ -67,6 +72,11 @@ public class AI{
 								if(randomizer.nextBoolean()){
 									bestMove = move;
 								}
+							}
+							if(bestMove[0] == -10000.0){
+								bestMove[1] = xPositionMove;
+								bestMove[2] = yPositionMove;
+								return bestMove;
 							}
 						}
 						move = null;
@@ -246,7 +256,7 @@ public class AI{
 				return (float)-10000; // lose // 7
 			// 8 wa pa
 			
-			System.out.println(value);
+			//System.out.println(value);
 			return (float)value;
 		}
 		
