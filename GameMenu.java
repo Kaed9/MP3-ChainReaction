@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.Scanner;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.nio.file.*;
 
 public class GameMenu extends JPanel {
 	
@@ -173,6 +174,10 @@ public class GameMenu extends JPanel {
 		);
 		load.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				load();
+			}
+			
+			public void load(){
 				gameHandler.getContentPane().removeAll();
 				gameHandler.repaint();
 				gameHandler.revalidate();
@@ -198,6 +203,7 @@ public class GameMenu extends JPanel {
 							}else{
 								listNames[i][1] = "Player VS. Player";
 							}
+							scan.close();
 						}catch(FileNotFoundException fnfEx){}
 					}else if(listOfFiles[i].isDirectory()){
 						//System.out.println("Directory " + listOfFiles[i].getName());
@@ -205,16 +211,21 @@ public class GameMenu extends JPanel {
 				}
 				LoadList loadList = new LoadList(listNames);
 				JButton loadButton = new JButton(new ImageIcon(new ImageIcon("ButtonLoadButton.png").getImage().getScaledInstance(150, 35, Image.SCALE_DEFAULT)));
-				loadButton.setOpaque(false);
-				loadButton.setBackground(Color.BLACK);
-				loadButton.setForeground(Color.RED);
-				loadButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+				//loadButton.setOpaque(false);
+				//loadButton.setBackground(Color.BLACK);
+				//loadButton.setForeground(Color.RED);
+				//loadButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 				loadButton.addActionListener(
 					new ActionListener(){
 						public void actionPerformed(ActionEvent butEv){
 							try{
-								File f = new File("./Saves/" + listNames[loadList.selectedIndex-1][0] + ".txt");
-								System.out.println("/Saves/" + listNames[loadList.selectedIndex-1][0] + ".txt");
+								File f = null;
+								try{
+									f = new File(".\\Saves\\" + listNames[loadList.selectedIndex-1][0] + ".txt");
+									System.out.println("/Saves/" + listNames[loadList.selectedIndex-1][0] + ".txt");
+								}catch(ArrayIndexOutOfBoundsException e){
+									return;
+								}
 								Scanner scan = new Scanner(f);
 								// while(scan.hasNext()) {
 									// System.out.println("" + scan.next() + "");
@@ -232,11 +243,33 @@ public class GameMenu extends JPanel {
 						}
 					}
 				);
+				JButton deleteButton = new JButton(new ImageIcon(new ImageIcon("ButtonDeleteButton.png").getImage().getScaledInstance(150, 35, Image.SCALE_DEFAULT)));
+				deleteButton.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent ev){
+						try{
+							String fileName = ".\\Saves\\" + listNames[loadList.selectedIndex-1][0] + ".txt";
+						}catch(ArrayIndexOutOfBoundsException e){
+							return;
+						}
+						try{
+							int reply = JOptionPane.showConfirmDialog(GameHandler.gameMenu.gameHandler, "Are you sure you want to delete?", "Delete Game", JOptionPane.YES_NO_OPTION);
+							if(reply == JOptionPane.YES_OPTION){
+								Files.delete(FileSystems.getDefault().getPath("Saves", String.valueOf(listNames[loadList.selectedIndex-1][0] + ".txt")));
+								load();
+							}else{
+								return;
+							}
+						}catch(IOException e){
+							System.out.println("Something went wrong!");
+							e.printStackTrace();
+						}
+					}
+				});
 				JButton back = new JButton(new ImageIcon(new ImageIcon("ButtonBack.png").getImage().getScaledInstance(150, 35, Image.SCALE_DEFAULT)));
-				back.setOpaque(false);
-				back.setBackground(Color.BLACK);
-				back.setForeground(Color.RED);
-				back.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+				//back.setOpaque(false);
+				//back.setBackground(Color.BLACK);
+				//back.setForeground(Color.RED);
+				//back.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 				back.addActionListener(
 					new ActionListener(){
 						public void actionPerformed(ActionEvent backEv){
@@ -245,12 +278,14 @@ public class GameMenu extends JPanel {
 					}
 				);
 				gameHandler.add(back);
+				gameHandler.add(deleteButton);
 				gameHandler.add(loadButton);
 				gameHandler.add(loadList);
 				gameHandler.add(title);
 				gameHandler.add(background);
-				back.setBounds(325, 460, 150, 35);
-				loadButton.setBounds(125, 460, 150, 35);
+				back.setBounds(400, 460, 150, 35);
+				deleteButton.setBounds(225, 460, 150, 35);
+				loadButton.setBounds(50, 460, 150, 35);
 				loadList.setBounds(30, 125, 540, 325);
 				gameHandler.getContentPane().repaint();
 				revalidate();
