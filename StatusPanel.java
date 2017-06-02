@@ -113,7 +113,7 @@ public class StatusPanel extends JPanel implements ActionListener{
 	}
 	
 	public void actionPerformed(ActionEvent e){
-		if(e.getSource() == timer && Board.ballMoveCtr == 0){
+		if(e.getSource() == timer && Board.ballMoveCtr == 0 && !handler.ai.findingMove){
 			currentTurn.setText("Turn: Player " + handler.player);
 		}
 	}
