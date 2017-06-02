@@ -22,6 +22,7 @@ public class GameHandler extends JFrame implements MouseListener, ActionListener
 	public GameHandler() {
 		
 		super("Chain Reaction");
+		setIconImage(new ImageIcon("Icon.png").getImage());
 		setSize(600,500);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		// printMenu();
@@ -129,6 +130,7 @@ public class GameHandler extends JFrame implements MouseListener, ActionListener
 		title.add(gamemode);
 		gamemode.setForeground(Color.CYAN);
 		gamemode.setBackground(Color.BLACK);
+		gamemode.setFont(new Font("OCR A Extended", Font.BOLD, 12));
 		StatusPanel statusPanel = new StatusPanel(this, gameMode, AIplayer);
 		this.add(mainBoard, BorderLayout.CENTER);
 		this.add(title, BorderLayout.NORTH);
@@ -153,12 +155,12 @@ public class GameHandler extends JFrame implements MouseListener, ActionListener
 		if(ai.player == player && !ai.findingMove && ai.enabled){
 			new Thread(){
 				public void run(){
-					 //try{
-					//System.out.println((Runtime.getRuntime().maxMemory()/1024/1024) + " " + (Runtime.getRuntime().totalMemory()/1024/1024) + " " + (Runtime.getRuntime().freeMemory()/1024/1024));
-					ai.findMove(mainBoard);
-					//System.out.println((Runtime.getRuntime().maxMemory()/1024/1024) + " " + (Runtime.getRuntime().totalMemory()/1024/1024) + " " + (Runtime.getRuntime().freeMemory()/1024/1024));
-						// Thread.sleep(250);
-					 //}catch(InterruptedException iEx){}
+					//try{
+						System.out.println((Runtime.getRuntime().maxMemory()/1024/1024) + " " + (Runtime.getRuntime().totalMemory()/1024/1024) + " " + (Runtime.getRuntime().freeMemory()/1024/1024));
+						ai.findMove(mainBoard);
+						System.out.println((Runtime.getRuntime().maxMemory()/1024/1024) + " " + (Runtime.getRuntime().totalMemory()/1024/1024) + " " + (Runtime.getRuntime().freeMemory()/1024/1024));
+						//Thread.sleep(250);
+					//}catch(InterruptedException iEx){}
 				}
 			}.start();
 			stackOverflow++;

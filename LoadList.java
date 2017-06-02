@@ -126,7 +126,7 @@ public class LoadList extends JPanel implements MouseListener{
 					itemsPanel[j].repaint();
 				}
 				itemsPanel[i].setOpaque(true);
-				itemsPanel[i].setBackground(Color.CYAN);
+				itemsPanel[i].setBackground(new Color(125,125,125, 125));
 				itemsPanel[i].repaint();
 				selectedIndex = i+1;
 				//System.out.println("Selected item = " + selectedIndex);

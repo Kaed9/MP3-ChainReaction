@@ -30,7 +30,7 @@ public class Board extends JPanel implements ActionListener{
 		}catch(IOException ex){}
 		for(int i = 0; i < 2; i++){
 			for(int j = 0; j < 5; j++){
-				ballIcon[i][j] = new ImageIcon(getClass().getResource(iconNames[i][j]));
+				ballIcon[i][j] = new ImageIcon(new ImageIcon(iconNames[i][j]).getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT));
 			}
 		}
 		

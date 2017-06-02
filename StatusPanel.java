@@ -11,8 +11,8 @@ import java.util.Date;
 
 public class StatusPanel extends JPanel implements ActionListener{
 	GameHandler handler = null;
-	JButton save = new JButton(new ImageIcon(new ImageIcon("ButtonSaveGame.png").getImage().getScaledInstance(100, 25, Image.SCALE_DEFAULT)));
-	JButton quit = new JButton(new ImageIcon(new ImageIcon("ButtonQuit.png").getImage().getScaledInstance(100, 25, Image.SCALE_DEFAULT)));
+	JButton save = new JButton(new ImageIcon(new ImageIcon("ButtonSaveGame.png").getImage().getScaledInstance(110, 30, Image.SCALE_DEFAULT)));
+	JButton quit = new JButton(new ImageIcon(new ImageIcon("ButtonQuit.png").getImage().getScaledInstance(110, 30, Image.SCALE_DEFAULT)));
 	JLabel currentTurn = new JLabel("Turn: ");
 	Timer timer = new Timer(1, this);
 	
@@ -23,6 +23,7 @@ public class StatusPanel extends JPanel implements ActionListener{
 		JPanel panel = new JPanel(new GridLayout(3,1, 0, 75));
 		//panel.setBackground(Color.BLACK);
 		panel.setOpaque(false);
+		currentTurn.setFont(new Font("OCR A Extended", Font.BOLD, 12));
 		
 		currentTurn.setForeground(Color.CYAN);
 		
@@ -47,39 +48,47 @@ public class StatusPanel extends JPanel implements ActionListener{
 				// DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd");
 				// Date date = new Date();
 				// String fileName = "Saves/" + dateFormat.format(date) + ".txt";
-				String fileName = JOptionPane.showInputDialog("Enter save file name");
-				if(fileName == null){
-					return;
-				}
-				fileName = "Saves/" + fileName + ".txt";
-				//System.out.println(fileName);
-				
-				File file = new File(fileName);
-				if(file.exists() && !file.isDirectory()){
-					int reply = JOptionPane.showConfirmDialog(GameHandler.gameMenu.gameHandler, "The game name already exist\nWould you like to overwrite the game?", "Game Name exists", JOptionPane.YES_NO_OPTION);
-					if(reply == JOptionPane.YES_OPTION){
+				new Thread(){
+					public void run(){
+						String fileName = OptionPane.inputDialog(handler, "Enter save file name:");
+						if(fileName == null){
+							return;
+						}
+						fileName = "Saves/" + fileName + ".txt";
+						//System.out.println(fileName);
 						
-					}else{
-						return;
+						File file = new File(fileName);
+						if(file.exists() && !file.isDirectory()){
+							new Thread(){
+								public void run(){
+									int reply = OptionPane.optionDialog(GameHandler.gameMenu.gameHandler, "The game name already exist\nWould you like to overwrite the game?");
+									if(reply == OptionPane.YES){
+										
+									}else{
+										return;
+									}
+								}
+							}.start();
+						}
+						try{
+							BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+							DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd");
+							Date date = new Date();
+							bufferedWriter.write(dateFormat.format(date) + "");
+							bufferedWriter.newLine();
+							bufferedWriter.write(gameMode + "");
+							bufferedWriter.newLine();
+							bufferedWriter.write(AIplayer + "");
+							bufferedWriter.newLine();
+							bufferedWriter.write(handler.player + "");
+							bufferedWriter.newLine();
+							String toWrite = handler.mainBoard.saving();
+							// System.out.println(toWrite);
+							bufferedWriter.write(toWrite);
+							bufferedWriter.close();
+						}catch(Exception ex){}
 					}
-				}
-				try{
-					BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-					DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd");
-					Date date = new Date();
-					bufferedWriter.write(dateFormat.format(date) + "");
-					bufferedWriter.newLine();
-					bufferedWriter.write(gameMode + "");
-					bufferedWriter.newLine();
-					bufferedWriter.write(AIplayer + "");
-					bufferedWriter.newLine();
-					bufferedWriter.write(handler.player + "");
-					bufferedWriter.newLine();
-					String toWrite = handler.mainBoard.saving();
-					// System.out.println(toWrite);
-					bufferedWriter.write(toWrite);
-					bufferedWriter.close();
-				}catch(Exception ex){}
+				}.start();
 			}
 		}
 		);
@@ -87,10 +96,14 @@ public class StatusPanel extends JPanel implements ActionListener{
 		quit.addActionListener(
 			new ActionListener(){
 				public void actionPerformed(ActionEvent ev){
-					int reply = JOptionPane.showConfirmDialog(GameHandler.gameMenu.gameHandler, "You will lose the progress of the game if you quit without saving\nDo you really want to quit?", "Are you sure you want to quit?", JOptionPane.YES_NO_OPTION);
-					if(reply == JOptionPane.YES_OPTION){
-						handler.starter();
-					}
+					new Thread(){
+						public void run(){
+							int reply = OptionPane.optionDialog(GameHandler.gameMenu.gameHandler, "You will lose the progress of the game if you quit without saving\nDo you really want to quit?");
+							if(reply == OptionPane.YES){
+								handler.starter();
+							}
+						}
+					}.start();
 					//GameHandler.gameMenu.gameHandler.starter();
 				}
 			}

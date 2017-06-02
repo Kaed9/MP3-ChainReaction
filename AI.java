@@ -16,16 +16,20 @@ public class AI{
 		findingMove = true;
 		depth2 = 3;
 		PseudoBoard pseudoBoard = new PseudoBoard(board);
-		float[] move = function((byte)1,(byte)1, pseudoBoard, (byte)depth2, true);
-		//board = null;
-		int[] ret = new int[2];
-		ret[0] = (int)move[1];
-		ret[1] = (int)move[2];
-		move = null;
-		System.gc();
-		board.move(ret[1], ret[0], false, player);
-		findingMove = false;
-		System.out.println("AI player " + player + " found move (" + ret[0] + ", " + ret[1] + ")");
+		new Thread(){
+			public void run(){
+				float[] move = function((byte)1,(byte)1, pseudoBoard, (byte)depth2, true);
+				//board = null;
+				int[] ret = new int[2];
+				ret[0] = (int)move[1];
+				ret[1] = (int)move[2];
+				move = null;
+				System.gc();
+				board.move(ret[1], ret[0], false, player);
+				findingMove = false;
+				System.out.println("AI player " + player + " found move (" + ret[0] + ", " + ret[1] + ")");
+			}
+		}.start();
 		//return ret;
 	}
 	

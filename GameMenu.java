@@ -22,6 +22,8 @@ public class GameMenu extends JPanel {
 		gameHandler.getContentPane().removeAll();//do not remove
 		gameHandler.repaint();//do not remove
 		gameHandler.revalidate();//do not remove
+		repaint();
+		revalidate();
 		gameHandler.setLayout(null);
 		JLabel background = new JLabel();
 		background.setIcon(new ImageIcon(new ImageIcon("background.png").getImage().getScaledInstance(600, 500, Image.SCALE_DEFAULT)));
@@ -251,18 +253,22 @@ public class GameMenu extends JPanel {
 						}catch(ArrayIndexOutOfBoundsException e){
 							return;
 						}
-						try{
-							int reply = JOptionPane.showConfirmDialog(GameHandler.gameMenu.gameHandler, "Are you sure you want to delete?", "Delete Game", JOptionPane.YES_NO_OPTION);
-							if(reply == JOptionPane.YES_OPTION){
-								Files.delete(FileSystems.getDefault().getPath("Saves", String.valueOf(listNames[loadList.selectedIndex-1][0] + ".txt")));
-								load();
-							}else{
-								return;
-							}
-						}catch(IOException e){
-							System.out.println("Something went wrong!");
-							e.printStackTrace();
-						}
+							new Thread(){
+								public void run(){
+									try{
+										int reply = OptionPane.optionDialog(GameHandler.gameMenu.gameHandler, "Are you sure you want to delete?");
+										if(reply == OptionPane.YES){
+											Files.delete(FileSystems.getDefault().getPath("Saves", String.valueOf(listNames[loadList.selectedIndex-1][0] + ".txt")));
+											load();
+										}else{
+											return;
+										}
+									}catch(IOException e){
+										System.out.println("Something went wrong!");
+										e.printStackTrace();
+									}
+								}
+							}.start();
 					}
 				});
 				JButton back = new JButton(new ImageIcon(new ImageIcon("ButtonBack.png").getImage().getScaledInstance(150, 35, Image.SCALE_DEFAULT)));
@@ -294,10 +300,14 @@ public class GameMenu extends JPanel {
 		);
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int reply = JOptionPane.showConfirmDialog(gameHandler, "Are you sure you want to quit?", "Exit Game", JOptionPane.YES_NO_OPTION);
-				if(reply == JOptionPane.YES_OPTION){
-					System.exit(0);
-				}
+				new Thread(){
+					public void run(){
+						int reply = OptionPane.optionDialog(gameHandler, "Are you sure you want to quit?");
+						if(reply == OptionPane.YES){
+							System.exit(0);
+						}
+					}
+				}.start();
 			}
 		}	
 		);
