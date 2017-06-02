@@ -16,20 +16,16 @@ public class AI{
 		findingMove = true;
 		depth2 = 3;
 		PseudoBoard pseudoBoard = new PseudoBoard(board);
-		new Thread(){
-			public void run(){
-				float[] move = function((byte)1,(byte)1, pseudoBoard, (byte)depth2, true);
-				//board = null;
-				int[] ret = new int[2];
-				ret[0] = (int)move[1];
-				ret[1] = (int)move[2];
-				move = null;
-				System.gc();
-				board.move(ret[1], ret[0], false, player);
-				findingMove = false;
-				System.out.println("AI player " + player + " found move (" + ret[0] + ", " + ret[1] + ")");
-			}
-		}.start();
+		float[] move = function((byte)1,(byte)1, pseudoBoard, (byte)depth2, true);
+		//board = null;
+		int[] ret = new int[2];
+		ret[0] = (int)move[1];
+		ret[1] = (int)move[2];
+		move = null;
+		System.gc();
+		board.move(ret[1], ret[0], false, player);
+		findingMove = false;
+		System.out.println("AI player " + player + " found move (" + ret[0] + ", " + ret[1] + ")");
 		//return ret;
 	}
 	
@@ -104,6 +100,7 @@ public class AI{
 	
 	private class PseudoBoard{
 		PseudoTile[][] tile = new PseudoTile[Board.height][Board.width];
+		boolean notnearai = false;
 		
 		public PseudoBoard(Board board){
 			for(int i = 0; i < tile.length; i++){
@@ -113,6 +110,7 @@ public class AI{
 					tile[i][j].player = (byte)board.tile[i][j].player;
 				}
 			}
+			setCritNums();
 		}
 		
 		public PseudoBoard(PseudoBoard board, int xMove, int yMove, byte player){
@@ -123,7 +121,23 @@ public class AI{
 					tile[i][j].player = board.tile[i][j].player;
 				}
 			}
+			setCritNums();
 			move((byte)yMove, (byte)xMove, player);
+		}
+		
+		public void setCritNums() {
+		
+			for(int i = 0; i < tile.length; i++) {
+				for(int j = 0; j < tile[i].length; j++) {
+					if((i == 0 && j == 0) || (i == 0 && j == tile[i].length - 1) || (i == tile.length - 1 && j == 0) || (i == tile.length - 1 && j == tile.length - 1))
+						tile[i][j].critNum = 2;
+					else if((i == 0 && (j > 0 && j < (tile.length - 1))) || ((i > 0 && i < (tile.length - 1)) && j == 0) || ((i > 0 && i < (tile.length - 1)) && j == (tile.length - 1)) || (i == (tile.length - 1) && (j > 0 && j < (tile.length - 1))))
+						tile[i][j].critNum = 3;
+					else
+						tile[i][j].critNum = 4;
+					tile[i][j].checked = false;
+				}
+			}
 		}
 		
 		public void move(byte y, byte x, byte player){
@@ -231,42 +245,132 @@ public class AI{
 			//closer to infinity player 1 wins, closer to zero player 2 wins
 			*/
 			int value = 0;
-			int myOrbs = 0, aiOrbs = 0;
-			boolean notnearai = false;
-			
-			for(int i = 0; i < tile.length; i++) { // height
-				for(int j = 0; j < tile.length; j++) { // width
-					if(tile[i][j].player == 1) {
-						myOrbs += 1; // 1 // not sure
-						notnearai = true;
-						// 2 wa pa
-						if(notnearai) {
-							if(tile[i][j].ctr == 3)
-								value += 2; // 3
-							else if(tile[i][j].ctr == 2)
-								value += 3; // 4
+			int myOrbs = 0, enemyOrbs = 0;
+			// boolean notnearai = false;
+			for(int i = 0; i < tile.length; i++) {
+				for(int j = 0; j < tile[i].length; j++) {
+					if(tile[i][j].player == (player == 2 ? 2:1)) {
+						myOrbs += 1; // 1
+						this.notnearai = true;
+						// 2 
+						if(tile[i][j].ctr > 0)
+							value = neighbors(i, j, value, false);
+						// System.out.print(this.notnearai);
+						if(this.notnearai) {
+							if((i == 0 && j == 0) || (i == 0 && j == tile[i].length - 1) || (i == tile.length - 1 && j == 0) || (i == tile.length - 1 && j == tile.length - 1)) {
+								// System.out.print("1 ");
+								if(tile[i][j].ctr > 0)
+									value += 3;
+							} else if((i == 0 && (j > 0 && j < (tile.length - 1))) || ((i > 0 && i < (tile.length - 1)) && j == 0) || ((i > 0 && i < (tile.length - 1)) && j == (tile.length - 1)) || (i == (tile.length - 1) && (j > 0 && j < (tile.length - 1)))) {
+								// System.out.print("2 ");
+								if(tile[i][j].ctr > 0)
+									value += 2;
+							}
 							
-							if(tile[i][j].ctr == 2 || tile[i][j].ctr == 3 || tile[i][j].ctr == 4) // sayop
-								value +=2; // 5
+							if(tile[i][j].ctr == (tile[i][j].critNum - 1))
+								value += 2; // 5
 						}
-					} else
-						aiOrbs += 1; // not sure
+					} else if(tile[i][j].player == (player == 1 ? 2:1))
+						enemyOrbs += 1;
 				}
 			}
 			value += myOrbs;
-			if(aiOrbs == 0 && myOrbs > 1)
+			if(enemyOrbs == 0 && myOrbs > 1)
 				return (float)10000; // win // 6
-			else if(myOrbs == 0 && aiOrbs > 1)
+			else if(myOrbs == 0 && enemyOrbs > 1)
 				return (float)-10000; // lose // 7
-			// 8 wa pa
 			
-			//System.out.println(value);
+			// 8
+			for(int i = 0; i < tile.length; i++) {
+				for(int j = 0; j < tile[i].length; j++) {
+					if(tile[i][j].ctr > 0) {
+						int sum = 0;
+						sum = neighbors(i, j, sum, true);
+						// int sum = neighbors(i, j, value, true);
+						value += (sum * 2);
+					}
+				}
+			}
+			// System.out.println(myOrbs + " " + enemyOrbs + " " + value);
+			// System.out.println();
 			return (float)value;
+		}
+		
+		public int neighbors(int i, int j, int value, boolean ifChain) {
+			
+			try {
+				if(!ifChain) {
+					if(tile[i][j+1].player == 1 && tile[i][j+1].ctr == tile[i][j+1].critNum-1) {
+						value -= (5 - tile[i][j+1].critNum);
+						this.notnearai = false;
+					}
+				} else {
+					if(tile[i][j+1].player == 2 && tile[i][j+1].ctr == tile[i][j+1].critNum-1 && tile[i][j+1].checked == false) {
+						tile[i][j+1].checked = true;
+						// System.out.print(tile[i][j+1].checked + " ");
+						value += neighbors(i, j+1, value+tile[i][j+1].critNum, true);
+					}
+				}
+			} catch(ArrayIndexOutOfBoundsException aiobEx) { }
+			
+			try {
+				if(!ifChain) {
+					if(tile[i][j-1].player == 1 && tile[i][j-1].ctr == tile[i][j-1].critNum-1) {
+						value -= (5 - tile[i][j-1].critNum);
+						this.notnearai = false;
+					}
+				} else {
+					if(tile[i][j-1].player == 2 && tile[i][j-1].ctr == tile[i][j-1].critNum-1 && tile[i][j-1].checked == false) {
+						tile[i][j-1].checked = true;
+						// System.out.print(tile[i][j-1].checked + " ");
+						value += neighbors(i, j-1, value+tile[i][j-1].critNum, true); 
+					}
+				}
+			} catch(ArrayIndexOutOfBoundsException aiobEx) { }
+			
+			try {
+				if(!ifChain) {
+					if(tile[i+1][j].player == 1 && tile[i+1][j].ctr == tile[i+1][j].critNum-1) {
+						value -= (5 - tile[i+1][j].critNum);
+						this.notnearai = false;
+					}
+				} else {
+					if(tile[i+1][j].player == 2 && tile[i+1][j].ctr == tile[i+1][j].critNum-1 && tile[i+1][j].checked == false) {
+						tile[i+1][j].checked = true;
+						// System.out.print(tile[i+1][j].checked + " ");
+						value += neighbors(i+1, j, value+tile[i+1][j].critNum, true);
+					}
+				}
+			} catch(ArrayIndexOutOfBoundsException aiobEx) { }
+			
+			try {
+				if(!ifChain) {
+					if(tile[i-1][j].player == 1 && tile[i-1][j].ctr == tile[i-1][j].critNum-1) {
+						value -= (5 - tile[i-1][j].critNum);
+						this.notnearai = false;
+					}
+				} else {
+					if(tile[i-1][j].player == 2 && tile[i-1][j].ctr == tile[i-1][j].critNum-1 && tile[i-1][j].checked == false) {
+						tile[i-1][j].checked = true;
+						// System.out.print(tile[i-1][j].checked + " ");
+						value += neighbors(i-1, j, value+tile[i-1][j].critNum, true); 
+					}
+				}
+			} catch(ArrayIndexOutOfBoundsException aiobEx) { }
+			
+			// if(ifChain)
+				// value *= 2;
+			
+			// System.out.print(this.notnearai + " ");
+			
+			return value;//+ neighbors();
 		}
 		
 		private class PseudoTile{
 			byte player = 0;
 			byte ctr = 0;
+			byte critNum = 0;
+			boolean checked = false;
 		}
 	}
 }

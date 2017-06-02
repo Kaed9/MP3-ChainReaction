@@ -11,6 +11,8 @@ public class BallMoveAnimation{
 	byte player = 0;
 	
 	public BallMoveAnimation(byte x, byte y, byte ctr, Board board, byte player){
+		PopSE pop = new PopSE();
+		pop.play("Pop.wav");
 		this.x = x;
 		this.y = y;
 		this.player = player;

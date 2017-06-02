@@ -156,9 +156,9 @@ public class GameHandler extends JFrame implements MouseListener, ActionListener
 			new Thread(){
 				public void run(){
 					//try{
-						System.out.println((Runtime.getRuntime().maxMemory()/1024/1024) + " " + (Runtime.getRuntime().totalMemory()/1024/1024) + " " + (Runtime.getRuntime().freeMemory()/1024/1024));
-						ai.findMove(mainBoard);
-						System.out.println((Runtime.getRuntime().maxMemory()/1024/1024) + " " + (Runtime.getRuntime().totalMemory()/1024/1024) + " " + (Runtime.getRuntime().freeMemory()/1024/1024));
+						// System.out.println((Runtime.getRuntime().maxMemory()/1024/1024) + " " + (Runtime.getRuntime().totalMemory()/1024/1024) + " " + (Runtime.getRuntime().freeMemory()/1024/1024));
+					ai.findMove(mainBoard);
+						// System.out.println((Runtime.getRuntime().maxMemory()/1024/1024) + " " + (Runtime.getRuntime().totalMemory()/1024/1024) + " " + (Runtime.getRuntime().freeMemory()/1024/1024));
 						//Thread.sleep(250);
 					//}catch(InterruptedException iEx){}
 				}
@@ -215,8 +215,10 @@ public class GameHandler extends JFrame implements MouseListener, ActionListener
 		
 		Runnable runner = new Runnable() {
 			public void run() {
-			new GameHandler();
-			gameMenu.printMenu();
+				new GameHandler();
+				gameMenu.printMenu();
+				BGM music = new BGM();
+				music.play("8_City_of_Funk.wav");
 			}
 		};
 		EventQueue.invokeLater(runner); // purpose: to avoid ClassCastException
